@@ -49,16 +49,16 @@
 // store ADC frame pointer
 static const u16 *g_ADC = 0;
 
-// buffer to store pad states for flash save
 #define BUTTON_COUNT 100
 
-u8 state1[BUTTON_COUNT] = {0};
-u8 state2[BUTTON_COUNT] = {0};
+u8 snake[100] = {0};
 
-u8 *currentState;
-u8 *nextState;
+enum direction u8
+{
+    UP, LEFT, DOWN, RIGHT
+};
 
-u8 start = 0;
+u8 dir = UP;
 
 //______________________________________________________________________________
 
@@ -66,12 +66,11 @@ void app_surface_event(u8 type, u8 index, u8 value)
 {
 	if (type == TYPESETUP && value != 0)
 	{
-		start = 1;
+        
 	}
 	if (type == TYPEPAD && value != 0 && !start)
 	{
-		currentState[index] = 1 * !currentState[index];
-		hal_plot_led(TYPEPAD, index, 0, MAXLED * currentState[index], 0);	
+		
 	}
 }
 
@@ -105,90 +104,22 @@ void app_cable_event(u8 type, u8 value)
 
 //______________________________________________________________________________
 
-u8 countNeighbours(u8 index)
-{
-	s8 total = 0;
-	
-// 	total += currentState[index - 11];
-// 	total += currentState[index - 10];
-// 	total += currentState[index - 9];
-// 
-// 	total += currentState[index - 1];
-// 	total += currentState[index + 1];
-// 	
-// 	total += currentState[index + 9];
-// 	total += currentState[index + 10];
-// 	total += currentState[index + 11];	
-
-	for (s8 i = -10; i < 20; i += 10)
-	{
-		for (s8 j = -1; j < 2; ++j)
-		{
-			total += currentState[index + j + i];
-		}
-	}
-	total -= currentState[index]; // remove count of own led
-	return total;
-}
-
-//______________________________________________________________________________
-
 void updateLEDS()
 {
-	for (u8 i = 0; i < BUTTON_COUNT; ++i)
-    {
-		hal_plot_led(TYPEPAD, i, 0, currentState[i] * MAXLED, 0);
-	}
+    
 }
 
 //______________________________________________________________________________
 
 void app_timer_event()
 {
-    // example - send MIDI clock at 125bpm
-#define TICK_MS 200
 #define VIEW_REFRESH 100
-    
-    if (start)
-    {
-   	    static u8 ms = 0;
-   	    
-   	    if (ms < VIEW_REFRESH)
-   	    	nextState[ms] = currentState[ms];
-   	    
-	    if (ms > 10 && ms < 89)
-    	{
-    		u8 count = countNeighbours(ms);
-    		
-	        if (count == 3)
-    	    	nextState[ms] = 1;        			
-	    	else if (count == 2 && currentState[ms] == 1)
-        		nextState[ms] = 1;
-	        else
-    	    	nextState[ms] = 0;
-	    }
-    	else if (ms >= VIEW_REFRESH)
-	    {
-    		hal_plot_led(TYPEPAD, ms - BUTTON_COUNT, 0, nextState[ms - BUTTON_COUNT] * MAXLED, 0);
-	    }
-	    if (ms >= TICK_MS)
-	    {
-	    	u8 *temp;
-	    	temp = currentState;
-    	    currentState = nextState;
-        	nextState = temp;
-	    	ms = -1;
-	    }
-		ms++;
-    }
 }
 
 //______________________________________________________________________________
 
 void app_init(const u16 *adc_raw)
 {
-	currentState = state1;
-	nextState = state2;
 	// store off the raw ADC frame pointer for later use
 	g_ADC = adc_raw;
 }
