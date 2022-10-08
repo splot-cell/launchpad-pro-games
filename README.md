@@ -1,3 +1,11 @@
+# Launchpad Pro Games
+
+Contains two branches:
+- snake
+- gameoflife
+
+Each contains a game that can be played on the Launchpad Pro. Based on the open-source firmware provided by Dave Hodder.
+
 [![Build Status](https://travis-ci.org/dvhdr/launchpad-pro.svg?branch=master)](https://travis-ci.org/dvhdr/launchpad-pro)
 
 # Launchpad Pro
